@@ -1,0 +1,2501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>AI Java Tutor</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family:
+                Inter,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+            background: #0b1120;
+            color: #e5e7eb;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        button,
+        textarea {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        /* =========================================
+           APPLICATION
+        ========================================= */
+
+        .app {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* =========================================
+           HEADER
+        ========================================= */
+
+        .header {
+            height: 64px;
+            min-height: 64px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 22px;
+
+            background: #111827;
+            border-bottom: 1px solid #1f2937;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 10px;
+
+            background: #2563eb;
+            color: white;
+
+            font-weight: 800;
+            font-size: 18px;
+        }
+
+        .brand-text h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #f9fafb;
+        }
+
+        .brand-text p {
+            margin-top: 2px;
+            font-size: 11px;
+            color: #9ca3af;
+        }
+
+        .header-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+        }
+
+        /* =========================================
+           MAIN WORKSPACE
+        ========================================= */
+
+        .workspace {
+            flex: 1;
+
+            display: grid;
+            grid-template-columns: 38% 62%;
+
+            min-height: 0;
+        }
+
+        /* =========================================
+           AI TUTOR PANEL
+        ========================================= */
+
+        .tutor-panel {
+            min-width: 0;
+            min-height: 0;
+
+            display: flex;
+            flex-direction: column;
+
+            background: #0f172a;
+            border-right: 1px solid #1f2937;
+        }
+
+        .panel-header {
+            height: 52px;
+            min-height: 52px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 18px;
+
+            border-bottom: 1px solid #1f2937;
+        }
+
+        .panel-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #f3f4f6;
+        }
+
+        .panel-badge {
+            padding: 4px 8px;
+
+            border-radius: 6px;
+
+            background: #172554;
+            color: #93c5fd;
+
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .tutor-content {
+            flex: 1;
+            min-height: 0;
+
+            overflow-y: auto;
+
+            padding: 18px;
+        }
+
+        /* =========================================
+           TUTOR CARDS
+        ========================================= */
+
+        .tutor-card {
+            margin-bottom: 14px;
+
+            padding: 15px;
+
+            background: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 10px;
+        }
+
+        .card-title {
+            margin-bottom: 9px;
+
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+
+            color: #60a5fa;
+        }
+
+        .card-text {
+            font-size: 13px;
+            line-height: 1.65;
+            color: #d1d5db;
+        }
+
+        /* =========================================
+           SELECTED LINE
+        ========================================= */
+
+        .selected-line {
+            padding: 11px 12px;
+
+            background: #172033;
+            border-left: 3px solid #3b82f6;
+
+            border-radius: 6px;
+
+            font-family: "Cascadia Code", Consolas, monospace;
+            font-size: 12px;
+
+            color: #bfdbfe;
+
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* =========================================
+           CONCEPT TAGS
+        ========================================= */
+
+        .concept-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .concept {
+            padding: 5px 8px;
+
+            border-radius: 6px;
+
+            background: #1e293b;
+            border: 1px solid #334155;
+
+            font-size: 11px;
+            color: #cbd5e1;
+        }
+
+        /* =========================================
+           EXECUTION FLOW
+        ========================================= */
+
+        .flow-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+
+            list-style: none;
+        }
+
+        .flow-item {
+            display: flex;
+            gap: 9px;
+
+            font-size: 12px;
+            line-height: 1.5;
+
+            color: #cbd5e1;
+        }
+
+        .flow-number {
+            width: 20px;
+            height: 20px;
+            min-width: 20px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 50%;
+
+            background: #1d4ed8;
+            color: white;
+
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        /* =========================================
+           LINE EXPLANATIONS
+        ========================================= */
+
+        .line-explanation {
+            margin-bottom: 12px;
+
+            border: 1px solid #1f2937;
+            border-radius: 8px;
+
+            overflow: hidden;
+
+            background: #0b1220;
+        }
+
+        .line-header {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+
+            padding: 9px 11px;
+
+            background: #111827;
+            border-bottom: 1px solid #1f2937;
+        }
+
+        .line-number {
+            width: 25px;
+            height: 25px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 5px;
+
+            background: #1e3a8a;
+            color: #bfdbfe;
+
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .line-code {
+            flex: 1;
+
+            font-family:
+                "Cascadia Code",
+                Consolas,
+                monospace;
+
+            font-size: 11px;
+
+            color: #e2e8f0;
+
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .line-body {
+            padding: 11px;
+        }
+
+        .line-body p {
+            margin-bottom: 7px;
+
+            font-size: 12px;
+            line-height: 1.55;
+
+            color: #cbd5e1;
+        }
+
+        .line-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #60a5fa;
+            text-transform: uppercase;
+        }
+
+        .parts {
+            margin-top: 9px;
+
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .part {
+            padding: 8px;
+
+            background: #111827;
+            border-radius: 6px;
+        }
+
+        .part-name {
+            font-family: Consolas, monospace;
+            font-size: 11px;
+            color: #93c5fd;
+        }
+
+        .part-meaning {
+            margin-top: 3px;
+
+            font-size: 11px;
+            line-height: 1.45;
+
+            color: #cbd5e1;
+        }
+
+        /* =========================================
+           EDITOR PANEL
+        ========================================= */
+
+        .editor-panel {
+            min-width: 0;
+            min-height: 0;
+
+            display: flex;
+            flex-direction: column;
+
+            background: #020617;
+        }
+
+        /* =========================================
+           EDITOR HEADER
+        ========================================= */
+
+        .editor-header {
+            min-height: 52px;
+            height: 52px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 15px;
+
+            background: #0f172a;
+            border-bottom: 1px solid #1f2937;
+        }
+
+        .editor-title {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+
+            font-size: 13px;
+            font-weight: 600;
+            color: #e5e7eb;
+        }
+
+        .java-icon {
+            width: 25px;
+            height: 25px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 5px;
+
+            background: #7c3aed;
+            color: white;
+
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        /* =========================================
+           TOOLBAR
+        ========================================= */
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tool-button {
+            height: 32px;
+
+            padding: 0 11px;
+
+            display: flex;
+            align-items: center;
+            gap: 6px;
+
+            border: 1px solid #334155;
+            border-radius: 6px;
+
+            background: #111827;
+            color: #cbd5e1;
+
+            font-size: 11px;
+            font-weight: 600;
+
+            transition:
+                background 0.15s,
+                border-color 0.15s,
+                color 0.15s;
+        }
+
+        .tool-button:hover {
+            background: #1e293b;
+            border-color: #475569;
+            color: white;
+        }
+
+        .run-button {
+            background: #15803d;
+            border-color: #16a34a;
+            color: white;
+        }
+
+        .run-button:hover {
+            background: #166534;
+            border-color: #22c55e;
+        }
+
+        .explain-button {
+            background: #1d4ed8;
+            border-color: #2563eb;
+            color: white;
+        }
+
+        .explain-button:hover {
+            background: #1e40af;
+        }
+
+        .tool-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* =========================================
+           EDITOR AREA
+        ========================================= */
+
+        .editor-container {
+            flex: 1;
+            min-height: 0;
+
+            display: flex;
+
+            background: #020617;
+
+            overflow: hidden;
+        }
+
+        .line-numbers {
+            width: 48px;
+            min-width: 48px;
+
+            padding-top: 15px;
+
+            background: #0b1120;
+            border-right: 1px solid #1e293b;
+
+            overflow: hidden;
+
+            text-align: right;
+
+            user-select: none;
+        }
+
+        .line-number-item {
+            height: 22px;
+
+            padding-right: 10px;
+
+            font-family:
+                "Cascadia Code",
+                Consolas,
+                monospace;
+
+            font-size: 12px;
+            line-height: 22px;
+
+            color: #475569;
+        }
+
+        .line-number-item.active {
+            color: #60a5fa;
+            background: #172033;
+        }
+
+        #codeEditor {
+            flex: 1;
+
+            width: 100%;
+            height: 100%;
+
+            padding: 15px 16px;
+
+            resize: none;
+
+            outline: none;
+            border: none;
+
+            background: #020617;
+            color: #e2e8f0;
+
+            font-family:
+                "Cascadia Code",
+                "Fira Code",
+                Consolas,
+                monospace;
+
+            font-size: 14px;
+            line-height: 22px;
+
+            tab-size: 4;
+
+            overflow: auto;
+        }
+
+        #codeEditor::selection {
+            background: #1e3a8a;
+        }
+
+        #codeEditor::-webkit-scrollbar,
+        .tutor-content::-webkit-scrollbar,
+        .console-output::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        #codeEditor::-webkit-scrollbar-track,
+        .tutor-content::-webkit-scrollbar-track,
+        .console-output::-webkit-scrollbar-track {
+            background: #020617;
+        }
+
+        #codeEditor::-webkit-scrollbar-thumb,
+        .tutor-content::-webkit-scrollbar-thumb,
+        .console-output::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 5px;
+        }
+
+        /* =========================================
+           CONSOLE
+        ========================================= */
+
+        .console {
+            height: 190px;
+            min-height: 190px;
+
+            display: flex;
+            flex-direction: column;
+
+            border-top: 1px solid #1f2937;
+
+            background: #020617;
+        }
+
+        .console-header {
+            height: 40px;
+            min-height: 40px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 14px;
+
+            background: #0f172a;
+            border-bottom: 1px solid #1f2937;
+        }
+
+        .console-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #cbd5e1;
+
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .console-status {
+            font-size: 10px;
+            color: #64748b;
+        }
+
+        .console-output {
+            flex: 1;
+
+            padding: 12px 14px;
+
+            overflow: auto;
+
+            font-family:
+                "Cascadia Code",
+                Consolas,
+                monospace;
+
+            font-size: 12px;
+            line-height: 1.6;
+
+            color: #94a3b8;
+
+            white-space: pre-wrap;
+        }
+
+        .console-output.success {
+            color: #86efac;
+        }
+
+        .console-output.error {
+            color: #fca5a5;
+        }
+
+        /* =========================================
+           EMPTY / LOADING
+        ========================================= */
+
+        .empty-state {
+            padding: 22px;
+
+            text-align: center;
+
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .loading {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            color: #93c5fd;
+        }
+
+        .spinner {
+            width: 14px;
+            height: 14px;
+
+            border: 2px solid #334155;
+            border-top-color: #60a5fa;
+
+            border-radius: 50%;
+
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* =========================================
+           RESPONSIVE
+        ========================================= */
+
+        @media (max-width: 1000px) {
+
+            .workspace {
+                grid-template-columns: 42% 58%;
+            }
+
+            .toolbar {
+                gap: 4px;
+            }
+
+            .tool-button {
+                padding: 0 8px;
+            }
+        }
+
+        @media (max-width: 760px) {
+
+            body {
+                overflow: auto;
+            }
+
+            .app {
+                min-height: 100vh;
+                height: auto;
+            }
+
+            .header {
+                height: 58px;
+                min-height: 58px;
+            }
+
+            .header-status {
+                display: none;
+            }
+
+            .workspace {
+                display: flex;
+                flex-direction: column;
+
+                min-height: calc(100vh - 58px);
+            }
+
+            .tutor-panel {
+                height: 50vh;
+                min-height: 400px;
+
+                border-right: none;
+                border-bottom: 1px solid #1f2937;
+            }
+
+            .editor-panel {
+                height: 70vh;
+                min-height: 550px;
+            }
+
+            .toolbar {
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+
+            .editor-header {
+                height: auto;
+                min-height: 52px;
+
+                padding: 8px;
+            }
+
+            .console {
+                height: 160px;
+                min-height: 160px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- =========================================
+         HEADER
+    ========================================== -->
+
+    <header class="header">
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                J
+            </div>
+
+            <div class="brand-text">
+
+                <h1>AI Java Tutor</h1>
+
+                <p>
+                    Learn Java by writing, running and understanding code
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="header-status">
+
+            <span class="status-dot"></span>
+
+            <span>
+                Backend connected
+            </span>
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================================
+         MAIN WORKSPACE
+    ========================================== -->
+
+    <main class="workspace">
+
+
+        <!-- =====================================
+             LEFT — AI TUTOR
+        ====================================== -->
+
+        <section class="tutor-panel">
+
+            <div class="panel-header">
+
+                <span class="panel-title">
+                    AI Tutor
+                </span>
+
+                <span class="panel-badge">
+                    Gemini
+                </span>
+
+            </div>
+
+
+            <div
+                class="tutor-content"
+                id="tutorContent"
+            >
+
+                <!-- Overview -->
+
+                <div class="tutor-card">
+
+                    <div class="card-title">
+                        Program Overview
+                    </div>
+
+                    <div
+                        class="card-text"
+                        id="overview"
+                    >
+                        Run <strong>Explain</strong> to ask the AI
+                        tutor to analyze your Java program.
+                    </div>
+
+                </div>
+
+
+                <!-- Selected Line -->
+
+                <div
+                    class="tutor-card"
+                    id="selectedLineCard"
+                    style="display: none;"
+                >
+
+                    <div class="card-title">
+                        Selected Line
+                    </div>
+
+                    <div
+                        class="selected-line"
+                        id="selectedLine"
+                    >
+                    </div>
+
+                </div>
+
+
+                <!-- Selected Line Explanation -->
+
+                <div
+                    class="tutor-card"
+                    id="selectedExplanationCard"
+                    style="display: none;"
+                >
+
+                    <div class="card-title">
+                        Selected Line Explanation
+                    </div>
+
+                    <div
+                        class="card-text"
+                        id="selectedExplanation"
+                    >
+                    </div>
+
+                </div>
+
+
+                <!-- Concepts -->
+
+                <div
+                    class="tutor-card"
+                    id="conceptsCard"
+                    style="display: none;"
+                >
+
+                    <div class="card-title">
+                        Java Concepts
+                    </div>
+
+                    <div
+                        class="concept-list"
+                        id="concepts"
+                    >
+                    </div>
+
+                </div>
+
+
+                <!-- Execution Flow -->
+
+                <div
+                    class="tutor-card"
+                    id="flowCard"
+                    style="display: none;"
+                >
+
+                    <div class="card-title">
+                        Execution Flow
+                    </div>
+
+                    <ol
+                        class="flow-list"
+                        id="executionFlow"
+                    >
+                    </ol>
+
+                </div>
+
+
+                <!-- Line Explanations -->
+
+                <div
+                    class="tutor-card"
+                    id="linesCard"
+                    style="display: none;"
+                >
+
+                    <div class="card-title">
+                        Line-by-Line Explanation
+                    </div>
+
+                    <div id="lineExplanations">
+                    </div>
+
+                </div>
+
+
+                <!-- Confidence -->
+
+                <div
+                    class="tutor-card"
+                    id="confidenceCard"
+                    style="display: none;"
+                >
+
+                    <div class="card-title">
+                        What You Should Understand
+                    </div>
+
+                    <div
+                        class="card-text"
+                        id="confidenceSummary"
+                    >
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="empty-state"
+                    id="tutorLoading"
+                    style="display: none;"
+                >
+
+                    <div class="loading">
+
+                        <span class="spinner"></span>
+
+                        <span>
+                            AI is analyzing your Java code...
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================
+             RIGHT — JAVA EDITOR
+        ====================================== -->
+
+        <section class="editor-panel">
+
+
+            <!-- Editor Header -->
+
+            <div class="editor-header">
+
+                <div class="editor-title">
+
+                    <div class="java-icon">
+                        JAVA
+                    </div>
+
+                    <span>
+                        Java Editor
+                    </span>
+
+                </div>
+
+
+                <div class="toolbar">
+
+                    <button
+                        class="tool-button run-button"
+                        id="runButton"
+                    >
+                        ▶ Run
+                    </button>
+
+                    <button
+                        class="tool-button explain-button"
+                        id="explainButton"
+                    >
+                        ✨ Explain
+                    </button>
+
+                    <button
+                        class="tool-button"
+                        id="formatButton"
+                    >
+                        Format
+                    </button>
+
+                    <button
+                        class="tool-button"
+                        id="copyButton"
+                    >
+                        Copy
+                    </button>
+
+                    <button
+                        class="tool-button"
+                        id="resetButton"
+                    >
+                        Reset
+                    </button>
+
+                    <button
+                        class="tool-button"
+                        id="clearButton"
+                    >
+                        Clear
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- Code Editor -->
+
+            <div class="editor-container">
+
+                <div
+                    class="line-numbers"
+                    id="lineNumbers"
+                >
+                </div>
+
+                <textarea
+                    id="codeEditor"
+                    spellcheck="false"
+                    autocomplete="off"
+                    autocorrect="off"
+                    autocapitalize="off"
+                >public class Main {
+    public static void main(String[] args) {
+        int number = 10;
+
+        System.out.println("Hello AI Java Tutor");
+        System.out.println("Number = " + number);
+    }
+}</textarea>
+
+            </div>
+
+
+            <!-- Console -->
+
+            <div class="console">
+
+                <div class="console-header">
+
+                    <span class="console-title">
+                        Console Output
+                    </span>
+
+                    <span
+                        class="console-status"
+                        id="consoleStatus"
+                    >
+                        Ready
+                    </span>
+
+                </div>
+
+                <div
+                    class="console-output"
+                    id="consoleOutput"
+                >
+                    Click <strong>Run</strong> to compile and execute
+                    your Java program.
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script>
+
+    /* =========================================
+       CONFIGURATION
+    ========================================== */
+
+    const API_BASE_URL = "http://localhost:8080";
+
+
+    /* =========================================
+       DOM ELEMENTS
+    ========================================== */
+
+    const codeEditor =
+        document.getElementById("codeEditor");
+
+    const lineNumbers =
+        document.getElementById("lineNumbers");
+
+    const runButton =
+        document.getElementById("runButton");
+
+    const explainButton =
+        document.getElementById("explainButton");
+
+    const formatButton =
+        document.getElementById("formatButton");
+
+    const copyButton =
+        document.getElementById("copyButton");
+
+    const resetButton =
+        document.getElementById("resetButton");
+
+    const clearButton =
+        document.getElementById("clearButton");
+
+    const consoleOutput =
+        document.getElementById("consoleOutput");
+
+    const consoleStatus =
+        document.getElementById("consoleStatus");
+
+    const overview =
+        document.getElementById("overview");
+
+    const selectedLineCard =
+        document.getElementById("selectedLineCard");
+
+    const selectedLine =
+        document.getElementById("selectedLine");
+
+    const selectedExplanationCard =
+        document.getElementById("selectedExplanationCard");
+
+    const selectedExplanation =
+        document.getElementById("selectedExplanation");
+
+    const conceptsCard =
+        document.getElementById("conceptsCard");
+
+    const concepts =
+        document.getElementById("concepts");
+
+    const flowCard =
+        document.getElementById("flowCard");
+
+    const executionFlow =
+        document.getElementById("executionFlow");
+
+    const linesCard =
+        document.getElementById("linesCard");
+
+    const lineExplanations =
+        document.getElementById("lineExplanations");
+
+    const confidenceCard =
+        document.getElementById("confidenceCard");
+
+    const confidenceSummary =
+        document.getElementById("confidenceSummary");
+
+    const tutorLoading =
+        document.getElementById("tutorLoading");
+
+
+    /* =========================================
+       STARTER CODE
+    ========================================== */
+
+    const starterCode =
+`public class Main {
+    public static void main(String[] args) {
+        int number = 10;
+
+        System.out.println("Hello AI Java Tutor");
+        System.out.println("Number = " + number);
+    }
+}`;
+
+
+    /* =========================================
+       INITIALIZE
+    ========================================== */
+
+    updateLineNumbers();
+
+    codeEditor.addEventListener(
+        "input",
+        updateLineNumbers
+    );
+
+    codeEditor.addEventListener(
+        "scroll",
+        syncLineNumberScroll
+    );
+
+
+    /* =========================================
+       LINE NUMBERS
+    ========================================== */
+
+    function updateLineNumbers() {
+
+        const lines =
+            codeEditor.value.split("\n");
+
+        lineNumbers.innerHTML = "";
+
+        lines.forEach(
+            function (_, index) {
+
+                const line =
+                    document.createElement("div");
+
+                line.className =
+                    "line-number-item";
+
+                line.textContent =
+                    index + 1;
+
+                lineNumbers.appendChild(line);
+            }
+        );
+
+    }
+
+
+    function syncLineNumberScroll() {
+
+        lineNumbers.scrollTop =
+            codeEditor.scrollTop;
+
+    }
+
+
+    /* =========================================
+       SELECTED LINE
+    ========================================== */
+
+    function getSelectedLineNumber() {
+
+        const cursorPosition =
+            codeEditor.selectionStart;
+
+        const textBeforeCursor =
+            codeEditor.value.substring(
+                0,
+                cursorPosition
+            );
+
+        return textBeforeCursor
+            .split("\n")
+            .length;
+
+    }
+
+
+    function highlightSelectedLine() {
+
+        const currentLine =
+            getSelectedLineNumber();
+
+        const numbers =
+            document.querySelectorAll(
+                ".line-number-item"
+            );
+
+        numbers.forEach(
+            function (item, index) {
+
+                item.classList.toggle(
+                    "active",
+                    index + 1 === currentLine
+                );
+
+            }
+        );
+
+    }
+
+
+    codeEditor.addEventListener(
+        "click",
+        highlightSelectedLine
+    );
+
+    codeEditor.addEventListener(
+        "keyup",
+        highlightSelectedLine
+    );
+
+    codeEditor.addEventListener(
+        "select",
+        highlightSelectedLine
+    );
+
+
+    /* =========================================
+       RUN CODE
+    ========================================== */
+
+    runButton.addEventListener(
+        "click",
+        runCode
+    );
+
+
+    async function runCode() {
+
+        const code =
+            codeEditor.value.trim();
+
+        if (!code) {
+
+            showConsole(
+                "Please enter Java code first.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        setButtonLoading(
+            runButton,
+            "Running..."
+        );
+
+        consoleStatus.textContent =
+            "Running";
+
+        showConsole(
+            "Compiling and running your Java program..."
+        );
+
+
+        try {
+
+            const response =
+                await fetch(
+                    API_BASE_URL +
+                    "/api/compiler/run",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            code: code
+                        })
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.error ||
+                    "Compiler request failed."
+                );
+
+            }
+
+
+            if (data.success) {
+
+                consoleStatus.textContent =
+                    "Success";
+
+                showConsole(
+                    data.output ||
+                    "Program executed successfully.",
+                    "success"
+                );
+
+            } else {
+
+                consoleStatus.textContent =
+                    "Error";
+
+                const errorMessage =
+                    data.error ||
+                    data.output ||
+                    "The program failed to execute.";
+
+                showConsole(
+                    errorMessage,
+                    "error"
+                );
+
+            }
+
+        } catch (error) {
+
+            consoleStatus.textContent =
+                "Connection Error";
+
+            showConsole(
+                "Unable to connect to the backend.\n\n" +
+                error.message +
+                "\n\nMake sure Spring Boot is running on port 8080.",
+                "error"
+            );
+
+        } finally {
+
+            resetButtonText(
+                runButton,
+                "▶ Run"
+            );
+
+        }
+
+    }
+
+
+    /* =========================================
+       EXPLAIN CODE
+    ========================================== */
+
+    explainButton.addEventListener(
+        "click",
+        explainCode
+    );
+
+
+    async function explainCode() {
+
+        const code =
+            codeEditor.value.trim();
+
+        if (!code) {
+
+            showTutorMessage(
+                "Please enter Java code before asking the AI tutor to explain it."
+            );
+
+            return;
+        }
+
+
+        const selectedLineNumber =
+            getSelectedLineNumber();
+
+
+        showTutorLoading();
+
+        setButtonLoading(
+            explainButton,
+            "Analyzing..."
+        );
+
+
+        try {
+
+            const response =
+                await fetch(
+                    API_BASE_URL +
+                    "/api/explanation",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+
+                            code: code,
+
+                            selectedLine:
+                                selectedLineNumber
+
+                        })
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.message ||
+                    data.error ||
+                    "Explanation request failed."
+                );
+
+            }
+
+
+            renderExplanation(data);
+
+        } catch (error) {
+
+            renderExplanationError(
+                error.message
+            );
+
+        } finally {
+
+            resetButtonText(
+                explainButton,
+                "✨ Explain"
+            );
+
+        }
+
+    }
+
+
+    /* =========================================
+       RENDER AI RESPONSE
+    ========================================== */
+
+    function renderExplanation(data) {
+
+        tutorLoading.style.display =
+            "none";
+
+
+        overview.textContent =
+            data.overview ||
+            "The AI did not provide an overview.";
+
+
+        if (
+            data.selectedLineExplanation &&
+            data.selectedLineExplanation.trim()
+        ) {
+
+            selectedLineCard.style.display =
+                "block";
+
+            selectedExplanationCard.style.display =
+                "block";
+
+            const lineNumber =
+                data.lines &&
+                data.lines.length > 0
+                    ? data.lines.find(
+                        function (item) {
+                            return item.line ===
+                                getSelectedLineNumber();
+                        }
+                    )
+                    : null;
+
+
+            if (lineNumber) {
+
+                selectedLine.textContent =
+                    "Line " +
+                    lineNumber.line +
+                    ": " +
+                    lineNumber.code;
+
+            } else {
+
+                selectedLine.textContent =
+                    "Line " +
+                    getSelectedLineNumber();
+
+            }
+
+
+            selectedExplanation.textContent =
+                data.selectedLineExplanation;
+
+        } else {
+
+            selectedLineCard.style.display =
+                "none";
+
+            selectedExplanationCard.style.display =
+                "none";
+
+        }
+
+
+        /* Concepts */
+
+        if (
+            Array.isArray(data.concepts) &&
+            data.concepts.length > 0
+        ) {
+
+            conceptsCard.style.display =
+                "block";
+
+            concepts.innerHTML = "";
+
+
+            data.concepts.forEach(
+                function (conceptText) {
+
+                    const tag =
+                        document.createElement("span");
+
+                    tag.className =
+                        "concept";
+
+                    tag.textContent =
+                        conceptText;
+
+                    concepts.appendChild(tag);
+
+                }
+            );
+
+        } else {
+
+            conceptsCard.style.display =
+                "none";
+
+        }
+
+
+        /* Execution Flow */
+
+        if (
+            Array.isArray(data.executionFlow) &&
+            data.executionFlow.length > 0
+        ) {
+
+            flowCard.style.display =
+                "block";
+
+            executionFlow.innerHTML = "";
+
+
+            data.executionFlow.forEach(
+                function (step, index) {
+
+                    const item =
+                        document.createElement("li");
+
+                    item.className =
+                        "flow-item";
+
+
+                    const number =
+                        document.createElement("span");
+
+                    number.className =
+                        "flow-number";
+
+                    number.textContent =
+                        index + 1;
+
+
+                    const text =
+                        document.createElement("span");
+
+                    text.textContent =
+                        step;
+
+
+                    item.appendChild(number);
+
+                    item.appendChild(text);
+
+                    executionFlow.appendChild(item);
+
+                }
+            );
+
+        } else {
+
+            flowCard.style.display =
+                "none";
+
+        }
+
+
+        /* Line Explanations */
+
+        if (
+            Array.isArray(data.lines) &&
+            data.lines.length > 0
+        ) {
+
+            linesCard.style.display =
+                "block";
+
+            lineExplanations.innerHTML = "";
+
+
+            data.lines.forEach(
+                function (line) {
+
+                    renderLineExplanation(line);
+
+                }
+            );
+
+        } else {
+
+            linesCard.style.display =
+                "none";
+
+        }
+
+
+        /* Confidence */
+
+        if (
+            data.confidenceSummary &&
+            data.confidenceSummary.trim()
+        ) {
+
+            confidenceCard.style.display =
+                "block";
+
+            confidenceSummary.textContent =
+                data.confidenceSummary;
+
+        } else {
+
+            confidenceCard.style.display =
+                "none";
+
+        }
+
+    }
+
+
+    /* =========================================
+       RENDER SINGLE LINE
+    ========================================== */
+
+    function renderLineExplanation(line) {
+
+        const container =
+            document.createElement("div");
+
+        container.className =
+            "line-explanation";
+
+
+        const header =
+            document.createElement("div");
+
+        header.className =
+            "line-header";
+
+
+        const number =
+            document.createElement("span");
+
+        number.className =
+            "line-number";
+
+        number.textContent =
+            line.line;
+
+
+        const code =
+            document.createElement("span");
+
+        code.className =
+            "line-code";
+
+        code.textContent =
+            line.code || "";
+
+
+        header.appendChild(number);
+
+        header.appendChild(code);
+
+
+        const body =
+            document.createElement("div");
+
+        body.className =
+            "line-body";
+
+
+        if (line.explanation) {
+
+            const explanation =
+                document.createElement("p");
+
+            explanation.innerHTML =
+                "<span class='line-label'>" +
+                "What it does" +
+                "</span><br>" +
+                escapeHtml(
+                    line.explanation
+                );
+
+            body.appendChild(
+                explanation
+            );
+
+        }
+
+
+        if (line.concept) {
+
+            const concept =
+                document.createElement("p");
+
+            concept.innerHTML =
+                "<span class='line-label'>" +
+                "Java concept" +
+                "</span><br>" +
+                escapeHtml(
+                    line.concept
+                );
+
+            body.appendChild(
+                concept
+            );
+
+        }
+
+
+        if (line.why) {
+
+            const why =
+                document.createElement("p");
+
+            why.innerHTML =
+                "<span class='line-label'>" +
+                "Why it is needed" +
+                "</span><br>" +
+                escapeHtml(
+                    line.why
+                );
+
+            body.appendChild(
+                why
+            );
+
+        }
+
+
+        /* Important code parts */
+
+        if (
+            Array.isArray(line.parts) &&
+            line.parts.length > 0
+        ) {
+
+            const parts =
+                document.createElement("div");
+
+            parts.className =
+                "parts";
+
+
+            line.parts.forEach(
+                function (part) {
+
+                    const partElement =
+                        document.createElement("div");
+
+                    partElement.className =
+                        "part";
+
+
+                    const name =
+                        document.createElement("div");
+
+                    name.className =
+                        "part-name";
+
+                    name.textContent =
+                        part.part || "";
+
+
+                    const meaning =
+                        document.createElement("div");
+
+                    meaning.className =
+                        "part-meaning";
+
+                    meaning.textContent =
+                        part.meaning || "";
+
+
+                    partElement.appendChild(
+                        name
+                    );
+
+                    partElement.appendChild(
+                        meaning
+                    );
+
+
+                    if (part.why) {
+
+                        const why =
+                            document.createElement("div");
+
+                        why.className =
+                            "part-meaning";
+
+                        why.textContent =
+                            "Why: " +
+                            part.why;
+
+                        partElement.appendChild(
+                            why
+                        );
+
+                    }
+
+
+                    parts.appendChild(
+                        partElement
+                    );
+
+                }
+            );
+
+
+            body.appendChild(parts);
+
+        }
+
+
+        if (line.relationship) {
+
+            const relationship =
+                document.createElement("p");
+
+            relationship.innerHTML =
+                "<span class='line-label'>" +
+                "Relationship" +
+                "</span><br>" +
+                escapeHtml(
+                    line.relationship
+                );
+
+            body.appendChild(
+                relationship
+            );
+
+        }
+
+
+        container.appendChild(
+            header
+        );
+
+        container.appendChild(
+            body
+        );
+
+
+        lineExplanations.appendChild(
+            container
+        );
+
+    }
+
+
+    /* =========================================
+       FORMAT CODE
+    ========================================== */
+
+    formatButton.addEventListener(
+        "click",
+        formatCode
+    );
+
+
+    function formatCode() {
+
+        let code =
+            codeEditor.value;
+
+
+        const lines =
+            code.split("\n");
+
+
+        let indentation = 0;
+
+        const formatted = [];
+
+
+        lines.forEach(
+            function (rawLine) {
+
+                const line =
+                    rawLine.trim();
+
+
+                if (!line) {
+
+                    formatted.push("");
+
+                    return;
+
+                }
+
+
+                if (line.startsWith("}")) {
+
+                    indentation =
+                        Math.max(
+                            0,
+                            indentation - 1
+                        );
+
+                }
+
+
+                formatted.push(
+                    "    ".repeat(indentation) +
+                    line
+                );
+
+
+                const opens =
+                    (line.match(
+                        /{/g
+                    ) || []).length;
+
+
+                const closes =
+                    (line.match(
+                        /}/g
+                    ) || []).length;
+
+
+                indentation +=
+                    opens - closes;
+
+
+                indentation =
+                    Math.max(
+                        0,
+                        indentation
+                    );
+
+            }
+        );
+
+
+        codeEditor.value =
+            formatted.join("\n");
+
+
+        updateLineNumbers();
+
+        highlightSelectedLine();
+
+    }
+
+
+    /* =========================================
+       COPY CODE
+    ========================================== */
+
+    copyButton.addEventListener(
+        "click",
+        async function () {
+
+            try {
+
+                await navigator.clipboard.writeText(
+                    codeEditor.value
+                );
+
+                const original =
+                    copyButton.textContent;
+
+                copyButton.textContent =
+                    "Copied!";
+
+                setTimeout(
+                    function () {
+
+                        copyButton.textContent =
+                            original;
+
+                    },
+                    1200
+                );
+
+            } catch (error) {
+
+                alert(
+                    "Unable to copy code."
+                );
+
+            }
+
+        }
+    );
+
+
+    /* =========================================
+       RESET CODE
+    ========================================== */
+
+    resetButton.addEventListener(
+        "click",
+        function () {
+
+            codeEditor.value =
+                starterCode;
+
+            updateLineNumbers();
+
+            highlightSelectedLine();
+
+            clearTutor();
+
+            showConsole(
+                "Editor reset to the starter Java program."
+            );
+
+            consoleStatus.textContent =
+                "Ready";
+
+        }
+    );
+
+
+    /* =========================================
+       CLEAR CODE
+    ========================================== */
+
+    clearButton.addEventListener(
+        "click",
+        function () {
+
+            codeEditor.value =
+                "";
+
+            updateLineNumbers();
+
+            highlightSelectedLine();
+
+            clearTutor();
+
+            showConsole(
+                "Editor cleared."
+            );
+
+            consoleStatus.textContent =
+                "Ready";
+
+        }
+    );
+
+
+    /* =========================================
+       CONSOLE
+    ========================================== */
+
+    function showConsole(
+        message,
+        type = ""
+    ) {
+
+        consoleOutput.className =
+            "console-output " +
+            type;
+
+        consoleOutput.textContent =
+            message;
+
+    }
+
+
+    /* =========================================
+       TUTOR LOADING
+    ========================================== */
+
+    function showTutorLoading() {
+
+        tutorLoading.style.display =
+            "block";
+
+        overview.textContent =
+            "The AI tutor is analyzing your Java program...";
+
+        selectedLineCard.style.display =
+            "none";
+
+        selectedExplanationCard.style.display =
+            "none";
+
+        conceptsCard.style.display =
+            "none";
+
+        flowCard.style.display =
+            "none";
+
+        linesCard.style.display =
+            "none";
+
+        confidenceCard.style.display =
+            "none";
+
+    }
+
+
+    /* =========================================
+       TUTOR ERROR
+    ========================================== */
+
+    function renderExplanationError(
+        message
+    ) {
+
+        tutorLoading.style.display =
+            "none";
+
+        overview.textContent =
+            "The AI tutor could not analyze the code.";
+
+        selectedLineCard.style.display =
+            "none";
+
+        selectedExplanationCard.style.display =
+            "none";
+
+        conceptsCard.style.display =
+            "none";
+
+        flowCard.style.display =
+            "none";
+
+        linesCard.style.display =
+            "none";
+
+        confidenceCard.style.display =
+            "block";
+
+        confidenceSummary.textContent =
+            message +
+            "\n\nMake sure Spring Boot is running on port 8080.";
+
+    }
+
+
+    function showTutorMessage(
+        message
+    ) {
+
+        tutorLoading.style.display =
+            "none";
+
+        overview.textContent =
+            message;
+
+    }
+
+
+    /* =========================================
+       CLEAR TUTOR
+    ========================================== */
+
+    function clearTutor() {
+
+        overview.textContent =
+            "Run Explain to ask the AI tutor to analyze your Java program.";
+
+        selectedLineCard.style.display =
+            "none";
+
+        selectedExplanationCard.style.display =
+            "none";
+
+        conceptsCard.style.display =
+            "none";
+
+        flowCard.style.display =
+            "none";
+
+        linesCard.style.display =
+            "none";
+
+        confidenceCard.style.display =
+            "none";
+
+        tutorLoading.style.display =
+            "none";
+
+    }
+
+
+    /* =========================================
+       BUTTON LOADING
+    ========================================== */
+
+    function setButtonLoading(
+        button,
+        text
+    ) {
+
+        button.disabled =
+            true;
+
+        button.dataset.originalText =
+            button.textContent;
+
+        button.textContent =
+            text;
+
+    }
+
+
+    function resetButtonText(
+        button,
+        text
+    ) {
+
+        button.disabled =
+            false;
+
+        button.textContent =
+            text;
+
+    }
+
+
+    /* =========================================
+       HTML ESCAPE
+    ========================================== */
+
+    function escapeHtml(
+        value
+    ) {
+
+        return String(value)
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+            .replace(
+                /</g,
+                "&lt;"
+            )
+            .replace(
+                />/g,
+                "&gt;"
+            )
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+            .replace(
+                /'/g,
+                "&#039;"
+            );
+
+    }
+
+</script>
+
+</body>
+</html>
